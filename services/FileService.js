@@ -5,19 +5,20 @@ import AdmZip from 'adm-zip'
 import { writeFileSync } from 'fs';
 
 class FileService {
-    async createZipArchive(nameArchive) {
+    /* async createZipArchive(nameArchive) {
         const zip = new AdmZip();
         const outputFile = `../${nameArchive}.zip`;
         zip.addLocalFolder("./test");
         zip.writeZip(outputFile);
-    }
+    } */
     async magic(files) {
         const extensionsList = ['image/png', 'image/webp', 'image/avif', 'image/jpg', 'image/jpeg'];
         try {
             for (const key in files) {
-                if (extensionsList.indexOf(files[key].mimetype) == -1 && files[key].size > 15000000) throw new Error('Not allowed type or data size')
+                if (extensionsList.indexOf(files[key].mimetype) !== -1 && files[key].size < 15000000) {
+                    throw new Error('Not allowed type or data size')
+                }
             }
-
             for (const key in files) {
                 console.log(files[key]);
             }

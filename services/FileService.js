@@ -3,7 +3,6 @@ import * as path from 'path';
 import sharp from 'sharp'
 import AdmZip from 'adm-zip'
 import fs from 'fs';
-import { log } from 'console';
 
 class FileService {
     async magic(files) {
@@ -12,7 +11,7 @@ class FileService {
         const zip = new AdmZip();
         /* const outputPath = `${new Date().toISOString().split('T')[0] + uuid.v4() }.zip`; */
         const fileOnZip = path.resolve(`static/${uuid.v4()}`)
-        fs.mkdir(fileOnZip, (err) => err)
+        fs.mkdirSync(fileOnZip)
         for (const index in files) {
             if (extensionsList.indexOf(files[index].mimetype) !== -1 && files[index].size < 150000000) {
                 try {
@@ -21,18 +20,17 @@ class FileService {
                     fileName.length--;
                     const fileNameFormat = fileName.join('').replace(' ', '_')
                     const filePath = path.resolve(fileOnZip, fileNameFormat);
-                    console.log(filePath);
                     fileOutputFormats.forEach(async format => {
                         switch (format) {
-                            case '.webp': fs.writeFileSync(filePath + format, await sharp(inputsImage)
+                            case '.webp': sharp(inputsImage)
                                 .webp({ quality: 80 })
-                                .toBuffer())
-                            case '.avif': fs.writeFileSync(filePath + format, await sharp(inputsImage)
-                                .avif({ quality: 80 })
-                                .toBuffer())
-                            case '.png': fs.writeFileSync(filePath + format, await sharp(inputsImage)
-                                /* .png({ quality: 80 }) */
-                                .toBuffer())
+                                .toFile(filePath + format)
+                            case '.avif': sharp(inputsImage)
+                                .avif(/* { quality: 80 } */)
+                                .toFile(filePath + format)
+                            case '.png': sharp(inputsImage)
+                                .png({ quality: 80 })
+                                .toFile(filePath + format)
                         }
                     });
                 } catch (error) {
@@ -41,9 +39,9 @@ class FileService {
 
             }
         }
-        /* zip.addLocalFolder(fileOnZip); */
-        fs.writeFileSync(outputPath, zip.toBuffer())
-        /* zip.writeZip(fileOnZip + '.zip'); */
+        zip.addLocalFolder(fileOnZip);
+        /* fs.writeFileSync(outputPath, zip.toBuffer()) */
+        zip.writeZip(fileOnZip + '.zip');
         return fileOnZip + '.zip';
     }
 }

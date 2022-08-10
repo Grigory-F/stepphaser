@@ -25,6 +25,9 @@ import FileRouter from './routes/FileRouter.js'
 
 const PORT = process.env.PORT || 3000;
 
+app.use('/test', (req, res) => {
+    res.send("its done")
+})
 
 app.use('/', FileRouter)
 
